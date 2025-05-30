@@ -1,7 +1,8 @@
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
-import os
+
+NUMBER_OF_EPOCHS = 5000
 
 def init_params():
     W1 = np.random.rand(10, 784) - 0.5
@@ -62,14 +63,14 @@ def get_accuracy(predictions, Y):
     print(predictions, Y)
     return np.sum(predictions == Y) / Y.size
 
-def gradient_descent(X, Y, iterations, alpha):
+def gradient_descent(X, Y, epochs, alpha):
     W1, b1, W2, b2 = init_params()
-    for i in range(iterations):
+    for i in range(epochs):
         Z1, A1, Z2, A2 = forward_prop(W1, b1, W2, b2, X)
         dW1, db1, dW2, db2 = back_prop(Z1, A1, Z2, A2, W2, X, Y)
         W1, b1, W2, b2 = update_params(W1, b1, W2, b2, dW1, db1, dW2, db2, alpha)
         if i % 10 == 0:
-            print("Iteration: ", i)
+            print("Epoch: ", i)
             print("Accuracy: ", get_accuracy(get_predictions(A2), Y))
     return W1, b1, W2, b2
 
@@ -91,11 +92,7 @@ def test_prediction(X_train, Y_train, index, W1, b1, W2, b2):
     plt.show()
 
 def main():
-    for dirname, _, filenames in os.walk('/kaggle/input'):
-        for filename in filenames:
-            print(os.path.join(dirname, filename))
-
-    data = pd.read_csv("/kaggle/input/digit-recognizer/train.csv")
+    data = pd.read_csv("train.csv")
 
     data.head()
 
@@ -113,7 +110,7 @@ def main():
     X_train = data_train[1:n]
     X_train = X_train / 255.0
 
-    W1, b1, W2, b2 = gradient_descent(X_train, Y_train, 500, 0.1)
+    W1, b1, W2, b2 = gradient_descent(X_train, Y_train, NUMBER_OF_EPOCHS, 0.1)
 
     test_prediction(X_train, Y_train, 6, W1, b1, W2, b2)
     dev_predictions = make_predictions(X_dev, W1, b1, W2, b2)
